@@ -85,6 +85,42 @@ describe('evaluateExpression', () => {
     const result = evaluateExpression('reviver("test", 1)');
     expect(result).toHaveProperty('error');
   });
+
+  it('normalizes Unicode multiplication symbol', () => {
+    const result = evaluateExpression('2 × 3');
+    expect(result).toHaveProperty('result');
+    expect((result as { result: string }).result).toBe('6');
+  });
+
+  it('normalizes Unicode division symbol', () => {
+    const result = evaluateExpression('10 ÷ 2');
+    expect(result).toHaveProperty('result');
+    expect((result as { result: string }).result).toBe('5');
+  });
+
+  it('normalizes π to pi', () => {
+    const result = evaluateExpression('π');
+    expect(result).toHaveProperty('result');
+    expect(Number((result as { result: string }).result)).toBeCloseTo(3.14159, 4);
+  });
+
+  it('returns note when expression was normalized', () => {
+    const result = evaluateExpression('2 × 3');
+    expect(result).toHaveProperty('note');
+    expect((result as { result: string; note: string }).note).toContain('2 × 3');
+    expect((result as { result: string; note: string }).note).toContain('2 * 3');
+  });
+
+  it('does not return note for clean expressions', () => {
+    const result = evaluateExpression('2 * 3');
+    expect(result).not.toHaveProperty('note');
+  });
+
+  it('strips thousands commas and evaluates', () => {
+    const result = evaluateExpression('1,000 + 2,000');
+    expect(result).toHaveProperty('result');
+    expect((result as { result: string }).result).toBe('3000');
+  });
 });
 
 describe('convertUnit', () => {
@@ -108,6 +144,23 @@ describe('convertUnit', () => {
   it('returns error for unknown units', () => {
     const result = convertUnit(5, 'foobar', 'bazqux');
     expect(result).toHaveProperty('error');
+  });
+
+  it('normalizes natural-language unit names', () => {
+    const result = convertUnit(100, 'celsius', 'fahrenheit');
+    expect(result).toHaveProperty('result');
+  });
+
+  it('returns note when units were normalized', () => {
+    const result = convertUnit(0, 'celsius', 'fahrenheit');
+    expect(result).toHaveProperty('note');
+    expect((result as { result: string; note: string }).note).toContain('celsius');
+    expect((result as { result: string; note: string }).note).toContain('degC');
+  });
+
+  it('does not return note for standard units', () => {
+    const result = convertUnit(5, 'km', 'miles');
+    expect(result).not.toHaveProperty('note');
   });
 });
 
