@@ -37,4 +37,25 @@ describe('convertTool', () => {
     const response = await convertTool.handler({ value: 5, from: 'foobar', to: 'bazqux' });
     expect(response.isError).toBe(true);
   });
+
+  it('handler converts mph to kph', async () => {
+    const response = await convertTool.handler({ value: 60, from: 'mph', to: 'kph' });
+    expect(response.isError).toBeUndefined();
+    const content = JSON.parse(response.content[0].text);
+    expect(Number(content.result)).toBeCloseTo(96.5606, 3);
+  });
+
+  it('handler converts knots to km/h', async () => {
+    const response = await convertTool.handler({ value: 1, from: 'knots', to: 'km/h' });
+    expect(response.isError).toBeUndefined();
+    const content = JSON.parse(response.content[0].text);
+    expect(Number(content.result)).toBeCloseTo(1.852, 3);
+  });
+
+  it('handler converts nmi to km', async () => {
+    const response = await convertTool.handler({ value: 1, from: 'nmi', to: 'km' });
+    expect(response.isError).toBeUndefined();
+    const content = JSON.parse(response.content[0].text);
+    expect(Number(content.result)).toBeCloseTo(1.852, 3);
+  });
 });

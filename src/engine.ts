@@ -11,6 +11,16 @@ const math: MathJsStatic = create(all);
 // Grab reference before overriding
 const limitedEvaluate = math.evaluate;
 
+// Register common unit aliases before disabling createUnit
+math.createUnit('mph', '1 mile/hour');
+math.createUnit('kph', '1 km/hour');
+math.createUnit('kmh', '1 km/hour');
+math.createUnit('knot', '1.852 km/hour');
+math.createUnit('knots', '1 knot');
+math.createUnit('kn', '1 knot');
+math.createUnit('kt', '1 knot');
+math.createUnit('nmi', '1.852 km');
+
 // Disable dangerous functions
 math.import(
   {

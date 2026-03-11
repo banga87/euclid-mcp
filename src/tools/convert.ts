@@ -9,11 +9,14 @@ export const convertTool = {
 
 Use this tool whenever a user asks to convert between units. The value, source unit, and target unit must be specified separately.
 
+Common aliases like "mph", "kph", "knots" are supported in addition to standard mathjs units.
+
 Examples:
 - "Convert 5 km to miles" → convert(5, "km", "miles")
 - "100°F in Celsius" → convert(100, "fahrenheit", "celsius")
 - "1 lb in kg" → convert(1, "lb", "kg")
-- "1024 bytes to kB" → convert(1024, "bytes", "kB")`,
+- "1024 bytes to kB" → convert(1024, "bytes", "kB")
+- "60 mph to km/h" → convert(60, "mph", "kph")`,
 
   inputSchema: z.object({
     value: z.number().describe('The numeric value to convert'),
