@@ -12,6 +12,8 @@ const EXPRESSION_REPLACEMENTS: [RegExp, string][] = [
   [/²/g, '^2'],
   [/³/g, '^3'],
   [/√\(/g, 'sqrt('],
+  [/√(\d+(?:\.\d+)?)/g, 'sqrt($1)'],
+  [/\u2212/g, '-'],
   [/π/g, 'pi'],
 ];
 

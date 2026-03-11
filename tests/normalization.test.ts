@@ -34,6 +34,24 @@ describe('normalizeExpression', () => {
     expect(result.wasTransformed).toBe(true);
   });
 
+  it('replaces bare √ followed by number', () => {
+    const result = normalizeExpression('√16');
+    expect(result.value).toBe('sqrt(16)');
+    expect(result.wasTransformed).toBe(true);
+  });
+
+  it('replaces bare √ followed by decimal number', () => {
+    const result = normalizeExpression('√2.5');
+    expect(result.value).toBe('sqrt(2.5)');
+    expect(result.wasTransformed).toBe(true);
+  });
+
+  it('replaces Unicode minus sign with hyphen-minus', () => {
+    const result = normalizeExpression('5 − 3');
+    expect(result.value).toBe('5 - 3');
+    expect(result.wasTransformed).toBe(true);
+  });
+
   it('replaces π with pi', () => {
     const result = normalizeExpression('2 * π');
     expect(result.value).toBe('2 * pi');
