@@ -24,12 +24,13 @@ const UNIT_ALIASES: Record<string, string> = {
 };
 
 export function normalizeUnit(input: string): NormalizeResult {
-  const key = input.toLowerCase().trim();
+  const trimmed = input.trim();
+  const key = trimmed.toLowerCase();
   const mapped = UNIT_ALIASES[key];
   if (mapped) {
     return { value: mapped, wasTransformed: true, original: input };
   }
-  return { value: input, wasTransformed: false, original: input };
+  return { value: trimmed, wasTransformed: trimmed !== input, original: input };
 }
 
 const EXPRESSION_REPLACEMENTS: [RegExp, string][] = [
