@@ -21,7 +21,11 @@ const STATISTICS_EXAMPLES = [
 ];
 
 function getCalculateHint(errorMessage: string): string {
-  if (errorMessage.includes('Unexpected') || errorMessage.includes('Parenthesis') || errorMessage.includes('Value expected')) {
+  if (
+    errorMessage.includes('Unexpected') ||
+    errorMessage.includes('Parenthesis') ||
+    errorMessage.includes('Value expected')
+  ) {
     return 'Check expression syntax. Use * for multiplication, / for division, ^ for exponents, and ensure parentheses are balanced.';
   }
   if (errorMessage.includes('Undefined symbol') || errorMessage.includes('Undefined function')) {

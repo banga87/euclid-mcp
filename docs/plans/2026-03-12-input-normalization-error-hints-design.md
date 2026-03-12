@@ -31,11 +31,12 @@ type NormalizeResult = {
   original: string;
 };
 
-function normalizeExpression(input: string): NormalizeResult
-function normalizeUnit(input: string): NormalizeResult
+function normalizeExpression(input: string): NormalizeResult;
+function normalizeUnit(input: string): NormalizeResult;
 ```
 
 **`normalizeExpression`** — static map of character-level substitutions:
+
 - `×` → `*`, `÷` → `/`
 - `²` → `^2`, `³` → `^3`
 - `√(` or `√` → `sqrt(`
@@ -45,6 +46,7 @@ function normalizeUnit(input: string): NormalizeResult
 Applied via sequential `.replace()` calls.
 
 **`normalizeUnit`** — static map of natural-language unit names to mathjs equivalents:
+
 - `"celsius"` → `"degC"`, `"fahrenheit"` → `"degF"`
 - `"kilometers per hour"` → `"km/hour"`, `"miles per hour"` → `"mile/hour"`
 - `"meters per second"` → `"m/s"`
@@ -62,12 +64,16 @@ type ErrorHint = {
   examples: string[];
 };
 
-function getErrorHint(tool: 'calculate' | 'convert' | 'statistics', errorMessage: string): ErrorHint
+function getErrorHint(
+  tool: 'calculate' | 'convert' | 'statistics',
+  errorMessage: string,
+): ErrorHint;
 ```
 
 **Pattern matching per tool:**
 
 **Calculate:**
+
 - Syntax errors → guidance on supported operators
 - Undefined symbols → list of supported functions
 - Disabled functions → security explanation
@@ -75,12 +81,14 @@ function getErrorHint(tool: 'calculate' | 'convert' | 'statistics', errorMessage
 - Examples: `["2 * 3", "sqrt(16)", "sin(pi / 4)", "log(100, 10)", "12! / (4! * 8!)"]`
 
 **Convert:**
+
 - Unknown unit → guidance on standard abbreviations
 - Incompatible units → guidance on matching quantity types
 - Fallback → generic hint
 - Examples: `["convert(5, 'km', 'mile')", "convert(100, 'degF', 'degC')", "convert(1, 'lb', 'kg')"]`
 
 **Statistics:**
+
 - Unknown operation → list valid operations
 - Percentile issues → percentile requirements
 - Empty data → data requirements
@@ -90,6 +98,7 @@ function getErrorHint(tool: 'calculate' | 'convert' | 'statistics', errorMessage
 ### Integration
 
 **Engine (`src/engine.ts`):**
+
 - `evaluateExpression()` calls `normalizeExpression()` before VM evaluation
 - `convertUnit()` calls `normalizeUnit()` on `from` and `to` before `math.unit()`
 - `EngineResult` type expands to carry optional normalization metadata
@@ -103,6 +112,7 @@ export type EngineResult =
 Convert uses a similar pattern with `originalFrom`/`from`/`originalTo`/`to`.
 
 **Tool handlers:**
+
 - Error branch: call `getErrorHint()` and append `hint` + `examples` to the JSON response
 - Success branch: if normalization occurred, append a `note` field (e.g., `"Note: '2 x 3' was interpreted as '2 * 3'"`)
 - Statistics handler: no normalization needed (structured enum + number array inputs), only error hints added
@@ -112,10 +122,12 @@ Convert uses a similar pattern with `originalFrom`/`from`/`originalTo`/`to`.
 ## Testing
 
 **New test files:**
+
 - `tests/normalization.test.ts` — each symbol/unit mapping, passthrough cases, case insensitivity
 - `tests/error-hints.test.ts` — each tool + error pattern combo, fallback behavior, non-empty examples
 
 **Updated test files:**
+
 - `tests/engine.test.ts` — normalized expressions evaluate correctly with metadata
 - `tests/convert.test.ts` — natural-language unit names work end-to-end
 - `tests/calculate.test.ts` — error responses include `hint` and `examples` fields

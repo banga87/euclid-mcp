@@ -13,6 +13,7 @@
 ### Task 1: Expression Normalization
 
 **Files:**
+
 - Create: `src/normalization.ts`
 - Create: `tests/normalization.test.ts`
 
@@ -156,6 +157,7 @@ git commit -m "feat: add expression normalization with tests"
 ### Task 2: Unit Normalization
 
 **Files:**
+
 - Modify: `src/normalization.ts` (add normalizeUnit)
 - Modify: `tests/normalization.test.ts` (add normalizeUnit tests)
 
@@ -291,6 +293,7 @@ git commit -m "feat: add unit normalization with aliases and tests"
 ### Task 3: Error Hints
 
 **Files:**
+
 - Create: `src/error-hints.ts`
 - Create: `tests/error-hints.test.ts`
 
@@ -406,13 +409,7 @@ export type ErrorHint = {
 
 type ToolName = 'calculate' | 'convert' | 'statistics';
 
-const CALCULATE_EXAMPLES = [
-  '2 * 3',
-  'sqrt(16)',
-  'sin(pi / 4)',
-  'log(100, 10)',
-  '12! / (4! * 8!)',
-];
+const CALCULATE_EXAMPLES = ['2 * 3', 'sqrt(16)', 'sin(pi / 4)', 'log(100, 10)', '12! / (4! * 8!)'];
 
 const CONVERT_EXAMPLES = [
   "convert(5, 'km', 'mile')",
@@ -490,6 +487,7 @@ git commit -m "feat: add error hints with tool-specific guidance and examples"
 ### Task 4: Integrate Normalization into Engine
 
 **Files:**
+
 - Modify: `src/engine.ts` (import normalization, update EngineResult, update evaluateExpression and convertUnit)
 - Modify: `tests/engine.test.ts` (add normalization integration tests)
 
@@ -498,63 +496,63 @@ git commit -m "feat: add error hints with tool-specific guidance and examples"
 Add to `tests/engine.test.ts` inside the `evaluateExpression` describe block:
 
 ```typescript
-  it('normalizes Unicode multiplication symbol', () => {
-    const result = evaluateExpression('2 × 3');
-    expect(result).toHaveProperty('result');
-    expect((result as { result: string }).result).toBe('6');
-  });
+it('normalizes Unicode multiplication symbol', () => {
+  const result = evaluateExpression('2 × 3');
+  expect(result).toHaveProperty('result');
+  expect((result as { result: string }).result).toBe('6');
+});
 
-  it('normalizes Unicode division symbol', () => {
-    const result = evaluateExpression('10 ÷ 2');
-    expect(result).toHaveProperty('result');
-    expect((result as { result: string }).result).toBe('5');
-  });
+it('normalizes Unicode division symbol', () => {
+  const result = evaluateExpression('10 ÷ 2');
+  expect(result).toHaveProperty('result');
+  expect((result as { result: string }).result).toBe('5');
+});
 
-  it('normalizes π to pi', () => {
-    const result = evaluateExpression('π');
-    expect(result).toHaveProperty('result');
-    expect(Number((result as { result: string }).result)).toBeCloseTo(3.14159, 4);
-  });
+it('normalizes π to pi', () => {
+  const result = evaluateExpression('π');
+  expect(result).toHaveProperty('result');
+  expect(Number((result as { result: string }).result)).toBeCloseTo(3.14159, 4);
+});
 
-  it('returns note when expression was normalized', () => {
-    const result = evaluateExpression('2 × 3');
-    expect(result).toHaveProperty('note');
-    expect((result as { result: string; note: string }).note).toContain('2 × 3');
-    expect((result as { result: string; note: string }).note).toContain('2 * 3');
-  });
+it('returns note when expression was normalized', () => {
+  const result = evaluateExpression('2 × 3');
+  expect(result).toHaveProperty('note');
+  expect((result as { result: string; note: string }).note).toContain('2 × 3');
+  expect((result as { result: string; note: string }).note).toContain('2 * 3');
+});
 
-  it('does not return note for clean expressions', () => {
-    const result = evaluateExpression('2 * 3');
-    expect(result).not.toHaveProperty('note');
-  });
+it('does not return note for clean expressions', () => {
+  const result = evaluateExpression('2 * 3');
+  expect(result).not.toHaveProperty('note');
+});
 
-  it('strips thousands commas and evaluates', () => {
-    const result = evaluateExpression('1,000 + 2,000');
-    expect(result).toHaveProperty('result');
-    expect((result as { result: string }).result).toBe('3000');
-  });
+it('strips thousands commas and evaluates', () => {
+  const result = evaluateExpression('1,000 + 2,000');
+  expect(result).toHaveProperty('result');
+  expect((result as { result: string }).result).toBe('3000');
+});
 ```
 
 Add to `tests/engine.test.ts` inside the `convertUnit` describe block:
 
 ```typescript
-  it('normalizes natural-language unit names', () => {
-    const result = convertUnit(100, 'celsius', 'fahrenheit');
-    expect(result).toHaveProperty('result');
-    expect(Number((result as { result: string }).result)).toBeCloseTo(212, 0);
-  });
+it('normalizes natural-language unit names', () => {
+  const result = convertUnit(100, 'celsius', 'fahrenheit');
+  expect(result).toHaveProperty('result');
+  expect(Number((result as { result: string }).result)).toBeCloseTo(212, 0);
+});
 
-  it('returns note when units were normalized', () => {
-    const result = convertUnit(0, 'celsius', 'fahrenheit');
-    expect(result).toHaveProperty('note');
-    expect((result as { result: string; note: string }).note).toContain('celsius');
-    expect((result as { result: string; note: string }).note).toContain('degC');
-  });
+it('returns note when units were normalized', () => {
+  const result = convertUnit(0, 'celsius', 'fahrenheit');
+  expect(result).toHaveProperty('note');
+  expect((result as { result: string; note: string }).note).toContain('celsius');
+  expect((result as { result: string; note: string }).note).toContain('degC');
+});
 
-  it('does not return note for standard units', () => {
-    const result = convertUnit(5, 'km', 'miles');
-    expect(result).not.toHaveProperty('note');
-  });
+it('does not return note for standard units', () => {
+  const result = convertUnit(5, 'km', 'miles');
+  expect(result).not.toHaveProperty('note');
+});
 ```
 
 **Step 2: Run tests to verify they fail**
@@ -567,16 +565,19 @@ Expected: New tests FAIL — `evaluateExpression('2 × 3')` returns error (mathj
 Changes to `src/engine.ts`:
 
 1. Add import at top:
+
 ```typescript
 import { normalizeExpression, normalizeUnit } from './normalization.js';
 ```
 
 2. Replace the `EngineResult` type:
+
 ```typescript
 export type EngineResult = { result: string; note?: string } | { error: string };
 ```
 
 3. Update `evaluateExpression` — add normalization after validation, before sandbox:
+
 ```typescript
 export function evaluateExpression(expression: string, precision: number = 14): EngineResult {
   if (expression.trim().length === 0) {
@@ -610,6 +611,7 @@ export function evaluateExpression(expression: string, precision: number = 14): 
 ```
 
 4. Update `convertUnit` — add normalization before math.unit():
+
 ```typescript
 export function convertUnit(value: number, from: string, to: string): EngineResult {
   const normFrom = normalizeUnit(from);
@@ -662,6 +664,7 @@ git commit -m "feat: integrate normalization into engine with transparency notes
 ### Task 5: Integrate Error Hints into Tool Handlers
 
 **Files:**
+
 - Modify: `src/tools/calculate.ts`
 - Modify: `src/tools/convert.ts`
 - Modify: `src/tools/statistics.ts`
@@ -674,69 +677,69 @@ git commit -m "feat: integrate normalization into engine with transparency notes
 Add to `tests/calculate.test.ts`:
 
 ```typescript
-  it('handler returns hint and examples on error', async () => {
-    const response = await calculateTool.handler({ expression: '2 +* 3' });
-    expect(response.isError).toBe(true);
-    const content = JSON.parse(response.content[0].text);
-    expect(content.hint).toBeTruthy();
-    expect(content.examples).toBeInstanceOf(Array);
-    expect(content.examples.length).toBeGreaterThan(0);
-  });
+it('handler returns hint and examples on error', async () => {
+  const response = await calculateTool.handler({ expression: '2 +* 3' });
+  expect(response.isError).toBe(true);
+  const content = JSON.parse(response.content[0].text);
+  expect(content.hint).toBeTruthy();
+  expect(content.examples).toBeInstanceOf(Array);
+  expect(content.examples.length).toBeGreaterThan(0);
+});
 
-  it('handler returns note when expression was normalized', async () => {
-    const response = await calculateTool.handler({ expression: '2 × 3' });
-    expect(response.isError).toBeUndefined();
-    const content = JSON.parse(response.content[0].text);
-    expect(content.result).toBe('6');
-    expect(content.note).toContain('2 × 3');
-    expect(content.note).toContain('2 * 3');
-  });
+it('handler returns note when expression was normalized', async () => {
+  const response = await calculateTool.handler({ expression: '2 × 3' });
+  expect(response.isError).toBeUndefined();
+  const content = JSON.parse(response.content[0].text);
+  expect(content.result).toBe('6');
+  expect(content.note).toContain('2 × 3');
+  expect(content.note).toContain('2 * 3');
+});
 
-  it('handler does not return note for clean expressions', async () => {
-    const response = await calculateTool.handler({ expression: '2 + 3' });
-    const content = JSON.parse(response.content[0].text);
-    expect(content.note).toBeUndefined();
-  });
+it('handler does not return note for clean expressions', async () => {
+  const response = await calculateTool.handler({ expression: '2 + 3' });
+  const content = JSON.parse(response.content[0].text);
+  expect(content.note).toBeUndefined();
+});
 ```
 
 Add to `tests/convert.test.ts`:
 
 ```typescript
-  it('handler returns hint and examples on error', async () => {
-    const response = await convertTool.handler({ value: 5, from: 'foobar', to: 'bazqux' });
-    expect(response.isError).toBe(true);
-    const content = JSON.parse(response.content[0].text);
-    expect(content.hint).toBeTruthy();
-    expect(content.examples).toBeInstanceOf(Array);
-    expect(content.examples.length).toBeGreaterThan(0);
-  });
+it('handler returns hint and examples on error', async () => {
+  const response = await convertTool.handler({ value: 5, from: 'foobar', to: 'bazqux' });
+  expect(response.isError).toBe(true);
+  const content = JSON.parse(response.content[0].text);
+  expect(content.hint).toBeTruthy();
+  expect(content.examples).toBeInstanceOf(Array);
+  expect(content.examples.length).toBeGreaterThan(0);
+});
 
-  it('handler returns note when units were normalized', async () => {
-    const response = await convertTool.handler({ value: 100, from: 'celsius', to: 'fahrenheit' });
-    expect(response.isError).toBeUndefined();
-    const content = JSON.parse(response.content[0].text);
-    expect(content.note).toContain('celsius');
-    expect(content.note).toContain('degC');
-  });
+it('handler returns note when units were normalized', async () => {
+  const response = await convertTool.handler({ value: 100, from: 'celsius', to: 'fahrenheit' });
+  expect(response.isError).toBeUndefined();
+  const content = JSON.parse(response.content[0].text);
+  expect(content.note).toContain('celsius');
+  expect(content.note).toContain('degC');
+});
 
-  it('handler does not return note for standard units', async () => {
-    const response = await convertTool.handler({ value: 5, from: 'km', to: 'miles' });
-    const content = JSON.parse(response.content[0].text);
-    expect(content.note).toBeUndefined();
-  });
+it('handler does not return note for standard units', async () => {
+  const response = await convertTool.handler({ value: 5, from: 'km', to: 'miles' });
+  const content = JSON.parse(response.content[0].text);
+  expect(content.note).toBeUndefined();
+});
 ```
 
 Add to `tests/statistics.test.ts`:
 
 ```typescript
-  it('handler returns hint and examples on error', async () => {
-    const response = await statisticsTool.handler({ operation: 'mean', data: [] });
-    expect(response.isError).toBe(true);
-    const content = JSON.parse(response.content[0].text);
-    expect(content.hint).toBeTruthy();
-    expect(content.examples).toBeInstanceOf(Array);
-    expect(content.examples.length).toBeGreaterThan(0);
-  });
+it('handler returns hint and examples on error', async () => {
+  const response = await statisticsTool.handler({ operation: 'mean', data: [] });
+  expect(response.isError).toBe(true);
+  const content = JSON.parse(response.content[0].text);
+  expect(content.hint).toBeTruthy();
+  expect(content.examples).toBeInstanceOf(Array);
+  expect(content.examples.length).toBeGreaterThan(0);
+});
 ```
 
 **Step 2: Run tests to verify new tests fail**
