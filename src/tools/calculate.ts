@@ -1,6 +1,7 @@
 // src/tools/calculate.ts
 import { z } from 'zod/v4';
 import { evaluateExpression } from '../engine.js';
+import { getErrorHint } from '../error-hints.js';
 
 export const calculateTool = {
   name: 'calculate',
@@ -33,11 +34,17 @@ Examples of when NOT to use this tool:
     const result = evaluateExpression(args.expression, args.precision);
 
     if ('error' in result) {
+      const { hint, examples } = getErrorHint('calculate', result.error);
       return {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify({ error: result.error, expression: args.expression }),
+            text: JSON.stringify({
+              error: result.error,
+              expression: args.expression,
+              hint,
+              examples,
+            }),
           },
         ],
         isError: true,
@@ -48,7 +55,11 @@ Examples of when NOT to use this tool:
       content: [
         {
           type: 'text' as const,
-          text: JSON.stringify({ result: result.result, expression: args.expression }),
+          text: JSON.stringify({
+            result: result.result,
+            expression: args.expression,
+            ...(result.note && { note: result.note }),
+          }),
         },
       ],
     };

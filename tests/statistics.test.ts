@@ -74,4 +74,19 @@ describe('statisticsTool', () => {
     expect(JSON.parse(responseMin.content[0].text).result).toBe('1');
     expect(JSON.parse(responseMax.content[0].text).result).toBe('8');
   });
+
+  it('handler returns hint and examples on error', async () => {
+    const response = await statisticsTool.handler({ operation: 'mean', data: [] });
+    expect(response.isError).toBe(true);
+    const content = JSON.parse(response.content[0].text);
+    expect(content.hint).toBeTruthy();
+    expect(content.examples).toBeInstanceOf(Array);
+    expect(content.examples.length).toBeGreaterThan(0);
+  });
+
+  it('handler does not return note for standard operations', async () => {
+    const response = await statisticsTool.handler({ operation: 'mean', data: [1, 2, 3] });
+    const content = JSON.parse(response.content[0].text);
+    expect(content.note).toBeUndefined();
+  });
 });

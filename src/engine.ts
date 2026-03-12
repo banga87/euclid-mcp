@@ -1,6 +1,7 @@
 // src/engine.ts
 import { create, all, type MathJsStatic } from 'mathjs';
 import vm from 'node:vm';
+import { normalizeExpression, normalizeUnit } from './normalization.js';
 
 const MAX_EXPRESSION_LENGTH = 1000;
 const TIMEOUT_MS = 5000;
@@ -52,23 +53,31 @@ math.import(
   { override: true },
 );
 
-export type EngineResult = { result: string } | { error: string };
+export type EngineResult = { result: string; note?: string } | { error: string };
 
 export function evaluateExpression(expression: string, precision: number = 14): EngineResult {
   if (expression.trim().length === 0) {
     return { error: 'Expression is empty' };
   }
+  // Length check runs before normalization intentionally: prevents oversized input
+  // from reaching the normalizer, regardless of how normalization may expand the string.
   if (expression.length > MAX_EXPRESSION_LENGTH) {
     return {
       error: `Expression too long (${expression.length} chars, max ${MAX_EXPRESSION_LENGTH})`,
     };
   }
 
+  const norm = normalizeExpression(expression);
+
   try {
-    const sandbox = { fn: limitedEvaluate, expr: expression };
+    const sandbox = { fn: limitedEvaluate, expr: norm.value };
     const raw = vm.runInNewContext('fn(expr)', sandbox, { timeout: TIMEOUT_MS });
     const formatted = math.format(raw, { precision, upperExp: 14, lowerExp: -14 });
-    return { result: formatted };
+    const engineResult: { result: string; note?: string } = { result: formatted };
+    if (norm.wasTransformed) {
+      engineResult.note = `Expression '${norm.original}' was interpreted as '${norm.value}'`;
+    }
+    return engineResult;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes('Script execution timed out')) {
@@ -79,11 +88,27 @@ export function evaluateExpression(expression: string, precision: number = 14): 
 }
 
 export function convertUnit(value: number, from: string, to: string): EngineResult {
+  const normFrom = normalizeUnit(from);
+  const normTo = normalizeUnit(to);
+
   try {
-    const unit = math.unit(value, from);
-    const converted = unit.to(to);
+    const unit = math.unit(value, normFrom.value);
+    const converted = unit.to(normTo.value);
     const num = converted.toNumber();
-    return { result: String(num) };
+    const engineResult: { result: string; note?: string } = { result: String(num) };
+
+    const notes: string[] = [];
+    if (normFrom.wasTransformed) {
+      notes.push(`'${normFrom.original}' was interpreted as '${normFrom.value}'`);
+    }
+    if (normTo.wasTransformed) {
+      notes.push(`'${normTo.original}' was interpreted as '${normTo.value}'`);
+    }
+    if (notes.length > 0) {
+      engineResult.note = notes.join('; ');
+    }
+
+    return engineResult;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return { error: message };

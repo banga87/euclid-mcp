@@ -1,6 +1,7 @@
 // src/tools/statistics.ts
 import { z } from 'zod/v4';
 import { computeStatistic, type StatOperation } from '../engine.js';
+import { getErrorHint } from '../error-hints.js';
 
 export const statisticsTool = {
   name: 'statistics',
@@ -28,11 +29,17 @@ Examples:
     const result = computeStatistic(args.operation as StatOperation, args.data, args.percentile);
 
     if ('error' in result) {
+      const { hint, examples } = getErrorHint('statistics', result.error);
       return {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify({ error: result.error, operation: args.operation }),
+            text: JSON.stringify({
+              error: result.error,
+              operation: args.operation,
+              hint,
+              examples,
+            }),
           },
         ],
         isError: true,
@@ -43,7 +50,11 @@ Examples:
       content: [
         {
           type: 'text' as const,
-          text: JSON.stringify({ result: result.result, operation: args.operation }),
+          text: JSON.stringify({
+            result: result.result,
+            operation: args.operation,
+            ...(result.note && { note: result.note }),
+          }),
         },
       ],
     };

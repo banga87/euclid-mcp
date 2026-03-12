@@ -36,4 +36,28 @@ describe('calculateTool', () => {
     expect(content.error).toBeTruthy();
     expect(content.expression).toBe('2 +* 3');
   });
+
+  it('handler returns hint and examples on error', async () => {
+    const response = await calculateTool.handler({ expression: '2 +* 3' });
+    expect(response.isError).toBe(true);
+    const content = JSON.parse(response.content[0].text);
+    expect(content.hint).toBeTruthy();
+    expect(content.examples).toBeInstanceOf(Array);
+    expect(content.examples.length).toBeGreaterThan(0);
+  });
+
+  it('handler returns note when expression was normalized', async () => {
+    const response = await calculateTool.handler({ expression: '2 × 3' });
+    expect(response.isError).toBeUndefined();
+    const content = JSON.parse(response.content[0].text);
+    expect(content.result).toBe('6');
+    expect(content.note).toContain('2 × 3');
+    expect(content.note).toContain('2 * 3');
+  });
+
+  it('handler does not return note for clean expressions', async () => {
+    const response = await calculateTool.handler({ expression: '2 + 3' });
+    const content = JSON.parse(response.content[0].text);
+    expect(content.note).toBeUndefined();
+  });
 });

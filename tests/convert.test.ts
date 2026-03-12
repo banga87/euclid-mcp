@@ -58,4 +58,27 @@ describe('convertTool', () => {
     const content = JSON.parse(response.content[0].text);
     expect(Number(content.result)).toBeCloseTo(1.852, 3);
   });
+
+  it('handler returns hint and examples on error', async () => {
+    const response = await convertTool.handler({ value: 5, from: 'foobar', to: 'bazqux' });
+    expect(response.isError).toBe(true);
+    const content = JSON.parse(response.content[0].text);
+    expect(content.hint).toBeTruthy();
+    expect(content.examples).toBeInstanceOf(Array);
+    expect(content.examples.length).toBeGreaterThan(0);
+  });
+
+  it('handler returns note when units were normalized', async () => {
+    const response = await convertTool.handler({ value: 100, from: 'celsius', to: 'fahrenheit' });
+    expect(response.isError).toBeUndefined();
+    const content = JSON.parse(response.content[0].text);
+    expect(content.note).toContain('celsius');
+    expect(content.note).toContain('degC');
+  });
+
+  it('handler does not return note for standard units', async () => {
+    const response = await convertTool.handler({ value: 5, from: 'km', to: 'miles' });
+    const content = JSON.parse(response.content[0].text);
+    expect(content.note).toBeUndefined();
+  });
 });

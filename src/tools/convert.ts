@@ -1,6 +1,7 @@
 // src/tools/convert.ts
 import { z } from 'zod/v4';
 import { convertUnit } from '../engine.js';
+import { getErrorHint } from '../error-hints.js';
 
 export const convertTool = {
   name: 'convert',
@@ -28,6 +29,7 @@ Examples:
     const result = convertUnit(args.value, args.from, args.to);
 
     if ('error' in result) {
+      const { hint, examples } = getErrorHint('convert', result.error);
       return {
         content: [
           {
@@ -37,6 +39,8 @@ Examples:
               value: args.value,
               from: args.from,
               to: args.to,
+              hint,
+              examples,
             }),
           },
         ],
@@ -53,6 +57,7 @@ Examples:
             value: args.value,
             from: args.from,
             to: args.to,
+            ...(result.note && { note: result.note }),
           }),
         },
       ],
