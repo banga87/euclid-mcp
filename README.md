@@ -172,7 +172,7 @@ Evaluates mathematical expressions deterministically.
 ```
 "What's (245 × 389) + (12^3 / 7)?"
 → calculate("(245 * 389) + (12^3 / 7)")
-→ 95,550.71428571429
+→ 95,551.85714285714
 ```
 
 **Supports:** arithmetic, order of operations, exponents, roots, trigonometry, logarithms, factorials, constants (π, e, φ), complex numbers, and anything else [mathjs](https://mathjs.org) can parse.
@@ -205,7 +205,7 @@ Statistical calculations on datasets.
 
 ```
 statistics("mean", [23, 45, 12, 67, 34])     → 36.2
-statistics("std", [23, 45, 12, 67, 34])       → 20.188
+statistics("std", [23, 45, 12, 67, 34])       → 21.159
 statistics("percentile", [1, 2, 3, 4, 5], 90) → 4.6
 ```
 
