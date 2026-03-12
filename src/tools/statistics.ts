@@ -50,7 +50,11 @@ Examples:
       content: [
         {
           type: 'text' as const,
-          text: JSON.stringify({ result: result.result, operation: args.operation }),
+          text: JSON.stringify({
+            result: result.result,
+            operation: args.operation,
+            ...(result.note && { note: result.note }),
+          }),
         },
       ],
     };

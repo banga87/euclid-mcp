@@ -83,4 +83,10 @@ describe('statisticsTool', () => {
     expect(content.examples).toBeInstanceOf(Array);
     expect(content.examples.length).toBeGreaterThan(0);
   });
+
+  it('handler does not return note for standard operations', async () => {
+    const response = await statisticsTool.handler({ operation: 'mean', data: [1, 2, 3] });
+    const content = JSON.parse(response.content[0].text);
+    expect(content.note).toBeUndefined();
+  });
 });
