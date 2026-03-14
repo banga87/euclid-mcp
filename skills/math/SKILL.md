@@ -22,14 +22,14 @@ is a prediction — the tool is deterministic.
 
 ## Which Tool to Use
 
-| The user needs... | Use | Example |
-|---|---|---|
-| A numerical result from a math expression | `calculate` | "What is 15% of 847?" → `0.15 * 847` |
-| To convert between units of measurement | `convert` | "Convert 5 km to miles" → `convert(5, "km", "mile")` |
-| A statistic computed on a dataset | `statistics` | "Average of these scores" → `statistics("mean", [...])` |
-| A conceptual explanation | None | "Explain what a derivative is" |
-| A rough estimate or guess | None | "About how many people fit in a stadium" |
-| Symbolic algebra (no numeric answer) | None | "Simplify x^2 + 2x" |
+| The user needs...                         | Use          | Example                                                 |
+| ----------------------------------------- | ------------ | ------------------------------------------------------- |
+| A numerical result from a math expression | `calculate`  | "What is 15% of 847?" → `0.15 * 847`                    |
+| To convert between units of measurement   | `convert`    | "Convert 5 km to miles" → `convert(5, "km", "mile")`    |
+| A statistic computed on a dataset         | `statistics` | "Average of these scores" → `statistics("mean", [...])` |
+| A conceptual explanation                  | None         | "Explain what a derivative is"                          |
+| A rough estimate or guess                 | None         | "About how many people fit in a stadium"                |
+| Symbolic algebra (no numeric answer)      | None         | "Simplify x^2 + 2x"                                     |
 
 ## Key Behaviors
 

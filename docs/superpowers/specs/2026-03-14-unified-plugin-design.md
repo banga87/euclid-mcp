@@ -17,15 +17,15 @@ Euclid's unique value is that the skills and MCP server are interdependent: skil
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Repo structure | Flat (Approach 1) | Proven pattern from superpowers/marketingskills. Skills at repo root alongside src/. |
-| MCP auto-registration | SessionStart hook | Idempotent hook checks if MCP is registered, adds it if not. One install step for users. |
-| Package rename | `@euclid-tools/euclid` | Cleaner name since repo is no longer MCP-only. `@euclid-tools/euclid` confirmed available. |
-| Repo rename | `euclidtools/euclid` | Matches package name. |
-| Cross-platform hooks | Polyglot `run-hook.cmd` | Batch + bash in one file, same pattern as superpowers. Handles Windows (Git Bash, MSYS2) and Unix. |
-| Other platforms | Claude Code only for now | Cursor, Gemini, Codex support will be separate projects later. |
-| euclid-plugin repo | Delete after validation | Once unified plugin is working, the old repo is removed. |
+| Decision              | Choice                   | Rationale                                                                                          |
+| --------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- |
+| Repo structure        | Flat (Approach 1)        | Proven pattern from superpowers/marketingskills. Skills at repo root alongside src/.               |
+| MCP auto-registration | SessionStart hook        | Idempotent hook checks if MCP is registered, adds it if not. One install step for users.           |
+| Package rename        | `@euclid-tools/euclid`   | Cleaner name since repo is no longer MCP-only. `@euclid-tools/euclid` confirmed available.         |
+| Repo rename           | `euclidtools/euclid`     | Matches package name.                                                                              |
+| Cross-platform hooks  | Polyglot `run-hook.cmd`  | Batch + bash in one file, same pattern as superpowers. Handles Windows (Git Bash, MSYS2) and Unix. |
+| Other platforms       | Claude Code only for now | Cursor, Gemini, Codex support will be separate projects later.                                     |
+| euclid-plugin repo    | Delete after validation  | Once unified plugin is working, the old repo is removed.                                           |
 
 ## Target Directory Structure
 
@@ -118,6 +118,7 @@ Fires on all four session events. MCP registration (steps 1-2 in the script) is 
 ### `hooks/run-hook.cmd`
 
 Cross-platform polyglot script following the superpowers pattern:
+
 - On Windows: locates bash via Git Bash (`C:\Program Files\Git\bin\bash.exe`) or MSYS2, then delegates
 - On Unix/macOS: runs bash directly
 - Invokes `hooks/session-start` with the appropriate shell
@@ -125,11 +126,13 @@ Cross-platform polyglot script following the superpowers pattern:
 ### `hooks/session-start`
 
 Bash script that:
+
 1. Checks if `euclid` MCP server is already registered (via `claude mcp list`)
 2. If not registered, runs `claude mcp add euclid -- npx -y @euclid-tools/euclid`
 3. Outputs JSON with context reminder that Euclid tools are available
 
 **Output format** (must match Claude Code's expected structure):
+
 ```json
 {
   "hookSpecificOutput": {

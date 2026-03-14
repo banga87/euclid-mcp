@@ -17,6 +17,7 @@
 ### Task 1: Create plugin manifest
 
 **Files:**
+
 - Create: `.claude-plugin/plugin.json`
 
 - [ ] **Step 1: Create the plugin manifest**
@@ -58,6 +59,7 @@ git commit -m "feat: add Claude Code plugin manifest"
 ### Task 2: Copy skill files from euclid-plugin
 
 **Files:**
+
 - Create: `skills/math/SKILL.md`
 - Create: `skills/math/EXPRESSIONS.md`
 - Create: `skills/math/UNITS.md`
@@ -68,6 +70,7 @@ Source: `../euclid-plugin/skills/math/`
 - [ ] **Step 1: Copy the four skill files**
 
 Copy these files exactly as they are from `../euclid-plugin/skills/math/` into `skills/math/`:
+
 - `SKILL.md`
 - `EXPRESSIONS.md`
 - `UNITS.md`
@@ -92,6 +95,7 @@ git commit -m "feat: add math skill files from euclid-plugin"
 ### Task 3: Add .gitattributes for line endings
 
 **Files:**
+
 - Create: `.gitattributes`
 
 Hook scripts must have Unix line endings (LF) or bash will fail with `\r` errors. This is critical since the repo is developed on Windows.
@@ -120,6 +124,7 @@ git commit -m "chore: add .gitattributes to enforce LF for hook scripts"
 ### Task 4: Create hooks.json
 
 **Files:**
+
 - Create: `hooks/hooks.json`
 
 - [ ] **Step 1: Create the hook definition**
@@ -162,6 +167,7 @@ git commit -m "feat: add SessionStart hook definition"
 ### Task 5: Create cross-platform polyglot launcher
 
 **Files:**
+
 - Create: `hooks/run-hook.cmd`
 
 This is a batch+bash polyglot. On Windows, cmd.exe runs the batch section which finds bash. On Unix, bash runs directly.
@@ -225,6 +231,7 @@ git commit -m "feat: add cross-platform polyglot hook launcher"
 ### Task 6: Create session-start hook script
 
 **Files:**
+
 - Create: `hooks/session-start`
 
 This is the bash script that auto-registers the MCP server and injects context.
@@ -308,16 +315,19 @@ git commit -m "feat: add session-start hook for MCP auto-registration"
 ### Task 7: Update package.json
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Update name, version, and repository**
 
 Change:
+
 - `"name": "@euclid-tools/euclid-mcp"` → `"name": "@euclid-tools/euclid"`
 - `"version": "0.1.3"` → `"version": "0.2.0"`
 - `"description"`: update to `"Deterministic math tools for LLMs — an MCP server and Claude Code plugin powered by mathjs"`
 
 Add a `"repository"` field:
+
 ```json
 "repository": {
   "type": "git",
@@ -354,6 +364,7 @@ git commit -m "feat: rename package to @euclid-tools/euclid, bump to 0.2.0"
 ### Task 8: Update .mcp.json
 
 **Files:**
+
 - Modify: `.mcp.json`
 
 - [ ] **Step 1: Update package name reference**
@@ -387,6 +398,7 @@ git commit -m "chore: update .mcp.json to new package name"
 ### Task 9: Add plugin file validation to CI
 
 **Files:**
+
 - Modify: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Add JSON validation step**
@@ -394,15 +406,15 @@ git commit -m "chore: update .mcp.json to new package name"
 Add a "Validate plugin files" step after `actions/setup-node` and before `pnpm install`. The final YAML should look like:
 
 ```yaml
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
-      - name: Validate plugin files
-        run: |
-          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8'))"
-          node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))"
-      - run: pnpm install --frozen-lockfile
+- uses: actions/setup-node@v4
+  with:
+    node-version: ${{ matrix.node-version }}
+    cache: pnpm
+- name: Validate plugin files
+  run: |
+    node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8'))"
+    node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))"
+- run: pnpm install --frozen-lockfile
 ```
 
 - [ ] **Step 2: Commit**
@@ -419,6 +431,7 @@ git commit -m "ci: add JSON validation for plugin manifest and hooks"
 ### Task 10: Rewrite README.md
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Rewrite with unified install + Euclid branding**
@@ -429,15 +442,17 @@ Start from the existing `README.md` and make these specific changes:
 
 **B) Replace the "Quick Start" section** (lines 14-144) with a new "Installation" section. The first and primary method should be the Claude Code plugin:
 
-```markdown
+````markdown
 ### Claude Code (Recommended)
 
 ```bash
 claude plugin install euclidtools/euclid
 ```
+````
 
 One command. This installs the skill (teaches Claude when to use Euclid) and auto-registers the MCP server.
-```
+
+````
 
 Then include these additional pathways in order:
 - Manual MCP: `claude mcp add euclid -- npx -y @euclid-tools/euclid`
@@ -474,13 +489,14 @@ Expected: No output (all references updated to the new name)
 ```bash
 git add README.md
 git commit -m "docs: rewrite README with unified plugin install and Euclid branding"
-```
+````
 
 ---
 
 ### Task 11: Update CLAUDE.md
 
 **Files:**
+
 - Modify: `../../CLAUDE.md` (the root-level CLAUDE.md at `C:\Code\euclid\CLAUDE.md`)
 
 The root CLAUDE.md currently says this is a monorepo with `euclid-mcp/` as the main project and all commands run from `euclid-mcp/`. After the merge, `euclid-mcp/` IS the project — but it will eventually be renamed to `euclid/`. For now, update the CLAUDE.md to reflect:
@@ -490,6 +506,7 @@ The root CLAUDE.md currently says this is a monorepo with `euclid-mcp/` as the m
 Make these specific changes to `../../CLAUDE.md`:
 
 **A) Replace the "Repository Structure" section** (lines 7-12). Replace:
+
 ```
 This is a monorepo with two projects:
 
@@ -500,6 +517,7 @@ Each project is its own git repo. All development commands below should be run f
 ```
 
 With:
+
 ```
 This is a monorepo. The main project is **`euclid-mcp/`** — a unified Claude Code plugin that provides:
 
@@ -561,6 +579,7 @@ Expected: `dist/index.js` generated successfully.
 - [ ] **Step 5: Verify directory structure matches spec**
 
 Confirm these files exist:
+
 - `.claude-plugin/plugin.json`
 - `skills/math/SKILL.md`
 - `skills/math/EXPRESSIONS.md`
