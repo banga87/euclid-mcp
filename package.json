@@ -1,6 +1,6 @@
 {
   "name": "@euclid-tools/euclid",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Deterministic math tools for LLMs — an MCP server and Claude Code plugin powered by mathjs",
   "repository": {
     "type": "git",
