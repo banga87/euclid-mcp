@@ -1,7 +1,7 @@
 // src/tools/statistics.ts
 import { z } from 'zod/v4';
 import { computeStatistic, type StatOperation } from '../engine.js';
-import { getErrorHint } from '../error-hints.js';
+import { getErrorHint } from '../error-hints/index.js';
 
 export const statisticsTool = {
   name: 'statistics',

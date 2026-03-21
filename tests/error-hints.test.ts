@@ -1,6 +1,6 @@
 // tests/error-hints.test.ts
 import { describe, it, expect } from 'vitest';
-import { getErrorHint } from '../src/error-hints.js';
+import { getErrorHint } from '../src/error-hints/index.js';
 
 describe('getErrorHint', () => {
   describe('calculate', () => {

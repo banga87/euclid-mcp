@@ -1,7 +1,7 @@
 // src/tools/calculate.ts
 import { z } from 'zod/v4';
 import { evaluateExpression } from '../engine.js';
-import { getErrorHint } from '../error-hints.js';
+import { getErrorHint } from '../error-hints/index.js';
 
 export const calculateTool = {
   name: 'calculate',

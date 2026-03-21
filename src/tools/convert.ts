@@ -1,7 +1,7 @@
 // src/tools/convert.ts
 import { z } from 'zod/v4';
 import { convertUnit } from '../engine.js';
-import { getErrorHint } from '../error-hints.js';
+import { getErrorHint } from '../error-hints/index.js';
 
 export const convertTool = {
   name: 'convert',
