@@ -68,3 +68,57 @@ export function normalizeExpression(input: string): NormalizeResult {
     original: input,
   };
 }
+
+const MONTH_NAMES: Record<string, string> = {
+  january: '01',
+  february: '02',
+  march: '03',
+  april: '04',
+  may: '05',
+  june: '06',
+  july: '07',
+  august: '08',
+  september: '09',
+  october: '10',
+  november: '11',
+  december: '12',
+};
+
+// Matches "Month DD, YYYY" or "Month DD YYYY"
+const MONTH_DD_YYYY = /^([a-z]+)\s+(\d{1,2}),?\s+(\d{4})$/i;
+// Matches "DD Month YYYY"
+const DD_MONTH_YYYY = /^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/i;
+
+export function normalizeDate(input: string): NormalizeResult {
+  const trimmed = input.trim();
+
+  // Pass through ISO 8601 dates: YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss...
+  if (/^\d{4}-\d{2}-\d{2}(T\S*)?$/.test(trimmed)) {
+    return { value: trimmed, wasTransformed: trimmed !== input, original: input };
+  }
+
+  // Try "Month DD, YYYY" or "Month DD YYYY"
+  const mdyMatch = trimmed.match(MONTH_DD_YYYY);
+  if (mdyMatch) {
+    const monthNum = MONTH_NAMES[mdyMatch[1].toLowerCase()];
+    if (monthNum) {
+      const day = mdyMatch[2].padStart(2, '0');
+      const year = mdyMatch[3];
+      return { value: `${year}-${monthNum}-${day}`, wasTransformed: true, original: input };
+    }
+  }
+
+  // Try "DD Month YYYY"
+  const dmyMatch = trimmed.match(DD_MONTH_YYYY);
+  if (dmyMatch) {
+    const monthNum = MONTH_NAMES[dmyMatch[2].toLowerCase()];
+    if (monthNum) {
+      const day = dmyMatch[1].padStart(2, '0');
+      const year = dmyMatch[3];
+      return { value: `${year}-${monthNum}-${day}`, wasTransformed: true, original: input };
+    }
+  }
+
+  // Everything else (including ambiguous numeric formats) passes through unchanged
+  return { value: trimmed, wasTransformed: trimmed !== input, original: input };
+}

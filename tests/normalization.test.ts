@@ -1,6 +1,6 @@
 // tests/normalization.test.ts
 import { describe, it, expect } from 'vitest';
-import { normalizeExpression, normalizeUnit } from '../src/normalization.js';
+import { normalizeExpression, normalizeUnit, normalizeDate } from '../src/normalization.js';
 
 describe('normalizeExpression', () => {
   it('replaces × with *', () => {
@@ -148,5 +148,61 @@ describe('normalizeUnit', () => {
     const result = normalizeUnit('degC');
     expect(result.value).toBe('degC');
     expect(result.wasTransformed).toBe(false);
+  });
+});
+
+describe('normalizeDate', () => {
+  it('passes through ISO date strings unchanged', () => {
+    const result = normalizeDate('2026-03-21');
+    expect(result.value).toBe('2026-03-21');
+    expect(result.wasTransformed).toBe(false);
+  });
+
+  it('passes through ISO datetime strings unchanged', () => {
+    const result = normalizeDate('2026-03-21T14:30:00');
+    expect(result.value).toBe('2026-03-21T14:30:00');
+    expect(result.wasTransformed).toBe(false);
+  });
+
+  it('normalizes "Month DD, YYYY" format', () => {
+    const result = normalizeDate('March 12, 2026');
+    expect(result.value).toBe('2026-03-12');
+    expect(result.wasTransformed).toBe(true);
+    expect(result.original).toBe('March 12, 2026');
+  });
+
+  it('normalizes "DD Month YYYY" format', () => {
+    const result = normalizeDate('12 March 2026');
+    expect(result.value).toBe('2026-03-12');
+    expect(result.wasTransformed).toBe(true);
+  });
+
+  it('handles full month names case-insensitively', () => {
+    const result = normalizeDate('january 1, 2026');
+    expect(result.value).toBe('2026-01-01');
+    expect(result.wasTransformed).toBe(true);
+  });
+
+  it('does NOT normalize ambiguous numeric formats like MM/DD/YYYY', () => {
+    const result = normalizeDate('12/03/2026');
+    expect(result.value).toBe('12/03/2026');
+    expect(result.wasTransformed).toBe(false);
+  });
+
+  it('does NOT normalize ambiguous numeric formats like DD-MM-YYYY', () => {
+    const result = normalizeDate('03-12-2026');
+    expect(result.value).toBe('03-12-2026');
+    expect(result.wasTransformed).toBe(false);
+  });
+
+  it('returns unparseable strings unchanged', () => {
+    const result = normalizeDate('not a date');
+    expect(result.value).toBe('not a date');
+    expect(result.wasTransformed).toBe(false);
+  });
+
+  it('trims whitespace', () => {
+    const result = normalizeDate('  2026-03-21  ');
+    expect(result.value).toBe('2026-03-21');
   });
 });
