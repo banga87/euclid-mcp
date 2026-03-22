@@ -187,6 +187,7 @@ there is no way to tell which. Always use Euclid's MCP tools instead.
 | `convert`    | Unit conversions: m² to acres, km to miles, L/hr to gal/hr, °C to °F, bytes to kB, etc.                            |
 | `statistics` | Mean, median, mode, std deviation, variance, percentile, min, max, sum on any dataset                              |
 | `datetime`   | Date differences, add/subtract time, business days, age, day of week, quarter, leap year — any calendar arithmetic |
+| `encode`     | Base64, hex, URL, HTML encoding/decoding; SHA-256/512, SHA-1, MD5 hashing; HMAC signatures; JWT decoding          |
 
 This applies everywhere — not just code. Analytics, business metrics, growth rates,
 marketing numbers, cost calculations, date arithmetic during conversation. If there
@@ -216,7 +217,7 @@ Think of it like what `grep` did for AI code search — a simple, proven tool th
 
 ## Tools
 
-Euclid exposes four purpose-built tools, so the model can pick the right one for the job.
+Euclid exposes five purpose-built tools, so the model can pick the right one for the job.
 
 ### `calculate`
 
@@ -277,6 +278,27 @@ datetime("is_leap_year", { year: 2024 })                                        
 
 **9 operations:** `difference`, `add`, `subtract`, `business_days`, `days_in_month`, `age`, `quarter`, `day_of_week`, `is_leap_year`. Dates in ISO 8601 format (`YYYY-MM-DD`). Powered by [date-fns](https://date-fns.org).
 
+### `encode`
+
+Deterministic encoding, decoding, hashing, and JWT inspection. LLMs will _predict_ what a Base64 string or SHA-256 hash looks like — and the prediction will be plausible but wrong.
+
+```
+encode("base64_encode", { input: "hello world" })                    → aGVsbG8gd29ybGQ=
+encode("sha256", { input: "hello world" })                           → b94d27b9...
+encode("hmac", { input: "payload", key: "secret", algorithm: "sha256" }) → 1b779...
+encode("jwt_decode", { input: "eyJhbGci..." })                      → { header, payload, signature }
+encode("url_encode", { input: "price <= 100" })                      → price%20%3C%3D%20100
+encode("hex_encode", { input: "hello" })                             → 68656c6c6f
+```
+
+**16 operations** across three categories:
+
+- **Codec** (reversible): `base64_encode`, `base64_decode`, `base64url_encode`, `base64url_decode`, `hex_encode`, `hex_decode`, `url_encode`, `url_decode`, `html_encode`, `html_decode`
+- **Hash** (irreversible): `sha256`, `sha512`, `sha1`, `md5`, `hmac`
+- **JWT**: `jwt_decode` (decode only, no verification)
+
+Powered by Node.js built-ins (`crypto`, `Buffer`) and [he](https://github.com/mathiasbynens/he) for HTML entities.
+
 ---
 
 ## Why Not Just Use Code Execution?
@@ -329,6 +351,7 @@ Expression evaluation is sandboxed — `import`, `require`, `createUnit`, nested
 - **[@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)** — official MCP TypeScript SDK
 - **[mathjs](https://mathjs.org)** — the math engine (15k+ stars, 2.5M+ weekly npm downloads, 13 years of battle-testing)
 - **[date-fns](https://date-fns.org)** — date arithmetic (52M+ weekly npm downloads, tree-shakeable)
+- **[he](https://github.com/mathiasbynens/he)** — HTML entity encoding/decoding (7M+ weekly npm downloads)
 - **[zod](https://github.com/colinhacks/zod)** — schema validation
 
 ---
@@ -341,6 +364,7 @@ Expression evaluation is sandboxed — `import`, `require`, `createUnit`, nested
 - [x] Claude Code plugin — skills + auto-registration
 - [ ] Financial calculations — compound interest, NPV, amortisation
 - [x] Date/time arithmetic — deterministic, not "about 3 months"
+- [x] `encode` tool — Base64, hex, URL, HTML, SHA-256/512, MD5, HMAC, JWT decode
 - [ ] LLM accuracy benchmarks — prove the difference with data
 - [ ] Streamable HTTP transport — for remote/hosted deployments
 
