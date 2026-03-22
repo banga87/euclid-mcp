@@ -15,7 +15,7 @@ describe('encode-jwt', () => {
 
   it('throws on JWT with wrong segment count (2 segments)', () => {
     expect(() => decodeJwt('eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ')).toThrow(
-      /3 dot-separated segments/
+      /3 dot-separated segments/,
     );
   });
 

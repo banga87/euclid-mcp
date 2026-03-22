@@ -4,18 +4,18 @@
 
 ### Codec (reversible)
 
-| Operation          | Required Fields | Optional Fields  | Returns                                     |
-| ------------------ | --------------- | ---------------- | ------------------------------------------- |
-| `base64_encode`    | `input`         | `input_encoding` | Base64 string (padded, RFC 4648)            |
-| `base64_decode`    | `input`         | —                | UTF-8 string (or hex if binary)             |
-| `base64url_encode` | `input`         | `input_encoding` | Base64url string (unpadded, RFC 4648 §5)    |
-| `base64url_decode` | `input`         | —                | UTF-8 string (or hex if binary)             |
-| `hex_encode`       | `input`         | `input_encoding` | Lowercase hex string                        |
-| `hex_decode`       | `input`         | —                | UTF-8 string (or hex if binary)             |
-| `url_encode`       | `input`         | —                | Percent-encoded string (RFC 3986)           |
-| `url_decode`       | `input`         | —                | UTF-8 string                                |
-| `html_encode`      | `input`         | —                | HTML entity string                          |
-| `html_decode`      | `input`         | —                | UTF-8 string                                |
+| Operation          | Required Fields | Optional Fields  | Returns                                  |
+| ------------------ | --------------- | ---------------- | ---------------------------------------- |
+| `base64_encode`    | `input`         | `input_encoding` | Base64 string (padded, RFC 4648)         |
+| `base64_decode`    | `input`         | —                | UTF-8 string (or hex if binary)          |
+| `base64url_encode` | `input`         | `input_encoding` | Base64url string (unpadded, RFC 4648 §5) |
+| `base64url_decode` | `input`         | —                | UTF-8 string (or hex if binary)          |
+| `hex_encode`       | `input`         | `input_encoding` | Lowercase hex string                     |
+| `hex_decode`       | `input`         | —                | UTF-8 string (or hex if binary)          |
+| `url_encode`       | `input`         | —                | Percent-encoded string (RFC 3986)        |
+| `url_decode`       | `input`         | —                | UTF-8 string                             |
+| `html_encode`      | `input`         | —                | HTML entity string                       |
+| `html_decode`      | `input`         | —                | UTF-8 string                             |
 
 ### Hash (irreversible)
 
@@ -87,9 +87,9 @@ encode({ operation: "jwt_decode", input: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyX
 
 By default, `input` is treated as a UTF-8 string. For binary data, set `input_encoding`:
 
-| Value    | Meaning                | Example                     |
-| -------- | ---------------------- | --------------------------- |
-| `utf8`   | UTF-8 string (default) | `"hello world"`             |
+| Value    | Meaning                | Example                    |
+| -------- | ---------------------- | -------------------------- |
+| `utf8`   | UTF-8 string (default) | `"hello world"`            |
 | `hex`    | Hex-encoded bytes      | `"48656c6c6f"` (= "Hello") |
 | `base64` | Base64-encoded bytes   | `"SGVsbG8="` (= "Hello")   |
 
@@ -108,7 +108,7 @@ Hash and HMAC results default to `hex`. Set `output_encoding: "base64"` for Base
 | `"Invalid Base64 input: ..."`  | Non-Base64 characters in input         | Check for URL-safe chars; use `base64url_decode` |
 | `"Invalid hex input: ..."`     | Odd length or non-hex characters       | Ensure even length, chars 0-9 and a-f only       |
 | `"Invalid JWT: ..."`           | Wrong number of dot-separated segments | JWTs must have exactly 3 segments                |
-| `"'hmac' requires: key, ..."` | Missing key or algorithm for HMAC      | Provide both `key` and `algorithm`               |
+| `"'hmac' requires: key, ..."`  | Missing key or algorithm for HMAC      | Provide both `key` and `algorithm`               |
 | `"Input exceeds maximum size"` | Input over 1 MB                        | Reduce input size                                |
 
 ## Key Design Notes

@@ -29,7 +29,7 @@ is a prediction — the tool is deterministic.
 | To convert between units of measurement   | `convert`    | "Convert 5 km to miles" → `convert(5, "km", "mile")`            |
 | A statistic computed on a dataset         | `statistics` | "Average of these scores" → `statistics("mean", [...])`         |
 | A date calculation or property            | `datetime`   | "Days between Jan 1 and Mar 15" → `datetime("difference", ...)` |
-| To encode, decode, hash, or inspect a JWT | `encode`     | "Base64-encode this" → `encode("base64_encode", ...)`          |
+| To encode, decode, hash, or inspect a JWT | `encode`     | "Base64-encode this" → `encode("base64_encode", ...)`           |
 | A conceptual explanation                  | None         | "Explain what a derivative is"                                  |
 | A rough estimate or guess                 | None         | "About how many people fit in a stadium"                        |
 | Symbolic algebra (no numeric answer)      | None         | "Simplify x^2 + 2x"                                             |

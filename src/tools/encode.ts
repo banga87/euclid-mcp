@@ -31,27 +31,40 @@ import { getErrorHint } from '../error-hints/index.js';
 const MAX_INPUT_BYTES = 1_048_576; // 1 MB
 
 const OPERATIONS = [
-  'base64_encode', 'base64_decode',
-  'base64url_encode', 'base64url_decode',
-  'hex_encode', 'hex_decode',
-  'url_encode', 'url_decode',
-  'html_encode', 'html_decode',
-  'sha256', 'sha512', 'sha1', 'md5', 'hmac',
+  'base64_encode',
+  'base64_decode',
+  'base64url_encode',
+  'base64url_decode',
+  'hex_encode',
+  'hex_decode',
+  'url_encode',
+  'url_decode',
+  'html_encode',
+  'html_decode',
+  'sha256',
+  'sha512',
+  'sha1',
+  'md5',
+  'hmac',
   'jwt_decode',
 ] as const;
 
-type EncodeOperation = typeof OPERATIONS[number];
+type EncodeOperation = (typeof OPERATIONS)[number];
 
 // Operations that accept input_encoding
 const INPUT_ENCODING_OPS = new Set<EncodeOperation>([
-  'base64_encode', 'base64url_encode', 'hex_encode',
-  'sha256', 'sha512', 'sha1', 'md5', 'hmac',
+  'base64_encode',
+  'base64url_encode',
+  'hex_encode',
+  'sha256',
+  'sha512',
+  'sha1',
+  'md5',
+  'hmac',
 ]);
 
 // Operations that accept output_encoding
-const OUTPUT_ENCODING_OPS = new Set<EncodeOperation>([
-  'sha256', 'sha512', 'sha1', 'md5', 'hmac',
-]);
+const OUTPUT_ENCODING_OPS = new Set<EncodeOperation>(['sha256', 'sha512', 'sha1', 'md5', 'hmac']);
 
 const ALGORITHM_NOTES: Record<string, string> = {
   sha256: 'SHA-256 produces a 256-bit (32-byte) digest.',
@@ -67,7 +80,9 @@ const ALGORITHM_NOTES: Record<string, string> = {
 function errorResponse(error: string, operation: string) {
   const { hint, examples } = getErrorHint('encode', error);
   return {
-    content: [{ type: 'text' as const, text: JSON.stringify({ error, operation, hint, examples }) }],
+    content: [
+      { type: 'text' as const, text: JSON.stringify({ error, operation, hint, examples }) },
+    ],
     isError: true as const,
   };
 }
@@ -116,20 +131,15 @@ Parameters:
 - key / key_encoding / algorithm — required for hmac only`,
 
   inputSchema: z.object({
-    operation: z
-      .enum(OPERATIONS)
-      .describe('The encode/decode/hash operation to perform'),
-    input: z
-      .string()
-      .describe('The input string to process'),
+    operation: z.enum(OPERATIONS).describe('The encode/decode/hash operation to perform'),
+    input: z.string().describe('The input string to process'),
     input_encoding: z
       .enum(['utf8', 'hex', 'base64'])
       .optional()
-      .describe('How to interpret the input bytes. Default: utf8. Only for encode and hash operations.'),
-    key: z
-      .string()
-      .optional()
-      .describe('HMAC key (required for hmac operation only)'),
+      .describe(
+        'How to interpret the input bytes. Default: utf8. Only for encode and hash operations.',
+      ),
+    key: z.string().optional().describe('HMAC key (required for hmac operation only)'),
     key_encoding: z
       .enum(['utf8', 'hex', 'base64'])
       .optional()
@@ -157,12 +167,18 @@ Parameters:
 
     // 1. Validate operation
     if (!OPERATIONS.includes(operation)) {
-      return errorResponse(`'${operation}' is not a valid operation. Supported: ${OPERATIONS.join(', ')}`, operation);
+      return errorResponse(
+        `'${operation}' is not a valid operation. Supported: ${OPERATIONS.join(', ')}`,
+        operation,
+      );
     }
 
     // 2. Validate input under 1 MB
     if (args.input.length > MAX_INPUT_BYTES) {
-      return errorResponse(`Input exceeds maximum size of 1 MB (${args.input.length} bytes)`, operation);
+      return errorResponse(
+        `Input exceeds maximum size of 1 MB (${args.input.length} bytes)`,
+        operation,
+      );
     }
 
     // 3. Validate HMAC-specific required fields
@@ -212,12 +228,22 @@ Parameters:
         // --- Codec ---
         case 'base64_encode': {
           const result = encodeBase64(input, inputEncoding);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'base64_decode': {
           const { result, isBinary } = decodeBase64(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           if (isBinary) {
             responseData.output_encoding = 'hex';
             responseData.note = 'Output contains binary data (not valid UTF-8). Displayed as hex.';
@@ -226,12 +252,22 @@ Parameters:
         }
         case 'base64url_encode': {
           const result = encodeBase64url(input, inputEncoding);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'base64url_decode': {
           const { result, isBinary } = decodeBase64url(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           if (isBinary) {
             responseData.output_encoding = 'hex';
             responseData.note = 'Output contains binary data (not valid UTF-8). Displayed as hex.';
@@ -240,12 +276,22 @@ Parameters:
         }
         case 'hex_encode': {
           const result = encodeHex(input, inputEncoding);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'hex_decode': {
           const { result, isBinary } = decodeHex(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           if (isBinary) {
             responseData.note = 'Output contains binary data (not valid UTF-8). Displayed as hex.';
           }
@@ -253,22 +299,42 @@ Parameters:
         }
         case 'url_encode': {
           const result = encodeUrl(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'url_decode': {
           const result = decodeUrl(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'html_encode': {
           const result = encodeHtml(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
         case 'html_decode': {
           const result = decodeHtml(input);
-          responseData = { operation, result, input_length: input.length, output_length: result.length };
+          responseData = {
+            operation,
+            result,
+            input_length: input.length,
+            output_length: result.length,
+          };
           break;
         }
 
@@ -277,7 +343,12 @@ Parameters:
         case 'sha512':
         case 'sha1':
         case 'md5': {
-          const result = computeHash(operation as HashAlgorithm, input, inputEncoding as HashInputEncoding, outputEncoding);
+          const result = computeHash(
+            operation as HashAlgorithm,
+            input,
+            inputEncoding as HashInputEncoding,
+            outputEncoding,
+          );
           responseData = {
             operation,
             result,
@@ -290,7 +361,14 @@ Parameters:
         case 'hmac': {
           const algorithm = args.algorithm as HashAlgorithm;
           const keyEncoding = (args.key_encoding || 'utf8') as HashInputEncoding;
-          const result = computeHmac(algorithm, input, inputEncoding as HashInputEncoding, args.key!, keyEncoding, outputEncoding);
+          const result = computeHmac(
+            algorithm,
+            input,
+            inputEncoding as HashInputEncoding,
+            args.key!,
+            keyEncoding,
+            outputEncoding,
+          );
           const algoUpper = algorithm.toUpperCase().replace('SHA', 'SHA-');
           responseData = {
             operation,
@@ -311,7 +389,8 @@ Parameters:
             header,
             payload,
             signature,
-            warning: 'Decoded without signature verification. Do not trust claims for auth decisions without server-side verification.',
+            warning:
+              'Decoded without signature verification. Do not trust claims for auth decisions without server-side verification.',
           };
           break;
         }

@@ -94,13 +94,19 @@ describe('encodeTool', () => {
     it('sha256', async () => {
       const { parsed } = await call({ operation: 'sha256', input: 'hello world' });
       expect(parsed.operation).toBe('sha256');
-      expect(parsed.result).toBe('b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9');
+      expect(parsed.result).toBe(
+        'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9',
+      );
       expect(parsed.output_encoding).toBe('hex');
       expect(parsed.algorithm_note).toContain('256-bit');
     });
 
     it('sha256 with base64 output', async () => {
-      const { parsed } = await call({ operation: 'sha256', input: 'hello world', output_encoding: 'base64' });
+      const { parsed } = await call({
+        operation: 'sha256',
+        input: 'hello world',
+        output_encoding: 'base64',
+      });
       expect(parsed.output_encoding).toBe('base64');
       expect(() => Buffer.from(parsed.result, 'base64')).not.toThrow();
     });
@@ -279,7 +285,9 @@ describe('encodeTool', () => {
     it('accepts empty string input', async () => {
       const { parsed, isError } = await call({ operation: 'sha256', input: '' });
       expect(isError).toBeUndefined();
-      expect(parsed.result).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+      expect(parsed.result).toBe(
+        'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      );
     });
 
     it('accepts input_encoding on base64_encode', async () => {

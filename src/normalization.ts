@@ -155,8 +155,7 @@ export function normalizeEncodeInput(
   // For hex_decode: always apply (the input IS hex)
   // For hash ops: only apply when input_encoding is 'hex'
   const shouldNormalizeHex =
-    HEX_DECODE_OPS.has(operation) ||
-    (HASH_OPS.has(operation) && inputEncoding === 'hex');
+    HEX_DECODE_OPS.has(operation) || (HASH_OPS.has(operation) && inputEncoding === 'hex');
 
   if (shouldNormalizeHex) {
     value = value.replace(/^0[xX]/, '');
