@@ -31,7 +31,7 @@ Follows the existing Euclid pattern: one tool per domain, consistent with `calcu
 
 ## 3. Operation set
 
-14 operations in 3 categories.
+16 operations in 3 categories.
 
 ### Codec (10 operations — reversible encode/decode pairs)
 
@@ -48,7 +48,7 @@ Follows the existing Euclid pattern: one tool per domain, consistent with `calcu
 | `html_encode` | UTF-8 string | HTML entity string | Named entities for common chars, numeric for rest |
 | `html_decode` | HTML entity string | UTF-8 string | Handles named, decimal, and hex entities via `he` |
 
-### Hash (4 operations — irreversible digests + HMAC)
+### Hash (5 operations — irreversible digests + HMAC)
 
 | Operation | Input | Output | Notes |
 |-----------|-------|--------|-------|
@@ -98,11 +98,23 @@ Follows the existing Euclid pattern: one tool per domain, consistent with `calcu
 }
 ```
 
+Parameter scope rules:
+
+| Parameter | Valid for | Rejected for |
+|-----------|-----------|--------------|
+| `input_encoding` | `base64_encode`, `base64url_encode`, `hex_encode`, `sha256`, `sha512`, `sha1`, `md5`, `hmac` | All decode operations, `url_encode`, `url_decode`, `html_encode`, `html_decode`, `jwt_decode` |
+| `output_encoding` | `sha256`, `sha512`, `sha1`, `md5`, `hmac` | All codec operations, `jwt_decode` |
+| `key` | `hmac` (required) | All other operations |
+| `key_encoding` | `hmac` | All other operations |
+| `algorithm` | `hmac` (required) | All other operations |
+
+Rationale: `input_encoding` only applies to operations that accept "UTF-8 string or encoded bytes" — the encode-direction codec operations and all hash operations. Decode operations have an inherent input format (base64, hex, URL-encoded, etc.) so `input_encoding` is meaningless. `url_encode` and `html_encode` always operate on UTF-8 strings.
+
 Validation order:
 1. `operation` is in the enum
-2. `input` is present and under 1 MB
+2. `input` is present and under 1 MB (checked on the raw `input` string parameter)
 3. Operation-specific required fields (`key`/`algorithm` for hmac)
-4. Parameter compatibility (`output_encoding` only for hash/hmac)
+4. Parameter scope rules (reject invalid parameter/operation combinations with clear error)
 5. Run normalization
 6. Execute engine function
 7. Wrap result
@@ -192,7 +204,9 @@ When normalization occurs, a `note` field is added: `"Interpreted: added padding
 
 ## 6. Engine architecture
 
-Three engine files, organized by category. The tool handler dispatches based on operation.
+Three engine files in `src/engines/`, organized by category. The tool handler imports from all three and dispatches based on operation.
+
+Note: The original three tools (calculate, convert, statistics) share a single `src/engine.ts`. The datetime tool introduced `src/engines/datetime.ts` as the pattern for new domains. The encode domain extends this further with three files because it has 16 operations spanning distinct implementation concerns (Buffer ops, crypto ops, JWT parsing). The tool handler in `src/tools/encode.ts` imports directly from all three engine files — no barrel file needed.
 
 ### `src/engines/encode-codec.ts`
 
@@ -245,7 +259,7 @@ Implementation:
 
 Minimal for this domain. Added to `src/normalization.ts` as `normalizeEncodeInput(operation, input)`.
 
-Returns `{ value, wasTransformed, original }` — same pattern as existing normalizers.
+Returns `NormalizeResult` (`{ value, wasTransformed, original }`) — the existing type from `src/normalization.ts`.
 
 | Input pattern | Normalization | Applies to |
 |---------------|---------------|------------|
@@ -259,23 +273,34 @@ Returns `{ value, wasTransformed, original }` — same pattern as existing norma
 
 New module `src/error-hints/encode.ts`, registered in `src/error-hints/index.ts`.
 
-| Error pattern | Hint | Examples |
-|---------------|------|----------|
-| Invalid Base64 character | Check for URL-safe chars (`-`, `_`); use `base64url_decode` instead | `"aGVsbG8="`, `"SGVsbG8gV29ybGQ="` |
-| Invalid hex (odd length or bad chars) | Hex strings must be even length, characters 0-9 and a-f only | `"48656c6c6f"`, `"0a1b2c"` |
-| Invalid URL encoding (bad percent sequence) | Percent sequences must be `%` followed by two hex digits | `"hello%20world"`, `"100%25"` |
-| Unknown HTML entity | Check spelling; use numeric form `&#NNN;` for uncommon characters | `"&amp;"`, `"&#8212;"` |
-| HMAC missing key | `hmac` operation requires `key` and `algorithm` parameters | Full HMAC example |
-| HMAC missing algorithm | `hmac` operation requires `algorithm` (sha256, sha512, sha1, md5) | Full HMAC example |
-| JWT wrong segment count | JWTs must have exactly 3 dot-separated segments (header.payload.signature) | Valid JWT example |
-| JWT invalid JSON | Base64url segment does not contain valid JSON | — |
+Follows the existing error-hints pattern: exports a static `EXAMPLES` array and a `getHint(errorMessage)` function. The `EXAMPLES` array is tool-level (not per-operation), covering a representative spread of encode operations. The `getHint()` function pattern-matches error strings and returns operation-context in the `hint` text.
+
+The `ToolName` type in `src/error-hints/index.ts` must be extended to include `'encode'`.
+
+**Static `EXAMPLES` array** (representative spread):
+```typescript
+['base64_encode "hello"', 'sha256 "hello world"', 'hmac with key and algorithm', 'jwt_decode "eyJ..."', 'url_encode "a=1&b=2"']
+```
+
+**`getHint()` pattern matching:**
+
+| Error pattern | Hint text |
+|---------------|-----------|
+| Invalid Base64 character | Check for URL-safe chars (`-`, `_`); use `base64url_decode` instead |
+| Invalid hex (odd length or bad chars) | Hex strings must be even length, characters 0-9 and a-f only |
+| Invalid URL encoding (bad percent sequence) | Percent sequences must be `%` followed by two hex digits |
+| Unknown HTML entity | Check spelling; use numeric form `&#NNN;` for uncommon characters |
+| HMAC missing key | `hmac` operation requires `key` and `algorithm` parameters |
+| HMAC missing algorithm | `hmac` operation requires `algorithm` (sha256, sha512, sha1, md5) |
+| JWT wrong segment count | JWTs must have exactly 3 dot-separated segments (header.payload.signature) |
+| JWT invalid JSON | Base64url segment does not contain valid JSON |
 
 ---
 
 ## 9. Security
 
 - **No sandbox needed.** Unlike `calculate` (arbitrary expression evaluation), encode operations are fixed-function calls (`Buffer.from()`, `crypto.createHash()`, `he.encode()`). No user-controlled code execution.
-- **Input size limit:** 1 MB max after decoding. Prevents memory exhaustion.
+- **Input size limit:** 1 MB max on the raw `input` string parameter (before any decoding). Checked at the handler level, consistent with how `calculate` checks `MAX_EXPRESSION_LENGTH` on raw input. Prevents memory exhaustion.
 - **No key storage.** HMAC keys exist only for the duration of the function call. Never cached or logged.
 - **No secrets in errors.** Error messages never include input data or key material.
 - **JWT decode is read-only.** No signing, no verification. Every response includes a warning.
@@ -295,7 +320,7 @@ No other new dependencies.
 ## 11. Skill and plugin integration
 
 ### New file: `skills/math/ENCODE.md`
-- Operation reference table (all 14 operations)
+- Operation reference table (all 16 operations)
 - When to use each operation (decision guide)
 - Common patterns (HMAC verification, JWT inspection, URL construction)
 - `input_encoding` / `output_encoding` / `key_encoding` usage
@@ -355,4 +380,4 @@ New file: `tests/encode.test.ts`.
 - `src/error-hints/index.ts` — register encode hints
 - `skills/math/SKILL.md` — add encode to decision table
 - `.claude-plugin/plugin.json` — bump version
-- `package.json` — add `he` dependency
+- `package.json` — add `he` as a runtime `dependency` (not devDependency)
