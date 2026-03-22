@@ -122,3 +122,50 @@ export function normalizeDate(input: string): NormalizeResult {
   // Everything else (including ambiguous numeric formats) passes through unchanged
   return { value: trimmed, wasTransformed: trimmed !== input, original: input };
 }
+
+// ---------------------------------------------------------------------------
+// Encode normalization
+// ---------------------------------------------------------------------------
+
+// Operations where hex_decode is the inherent format (always normalize hex)
+const HEX_DECODE_OPS = new Set(['hex_decode']);
+
+// Hash operations where hex normalization only applies when input_encoding is 'hex'
+const HASH_OPS = new Set(['sha256', 'sha512', 'sha1', 'md5', 'hmac']);
+
+// Operations that accept base64 input for decoding
+const BASE64_PAD_OPS = new Set(['base64_decode']);
+
+export function normalizeEncodeInput(
+  operation: string,
+  input: string,
+  inputEncoding?: string,
+): NormalizeResult {
+  let value = input;
+
+  // Base64 padding: add = to make length a multiple of 4
+  if (BASE64_PAD_OPS.has(operation)) {
+    const remainder = value.length % 4;
+    if (remainder !== 0 && value.length > 0) {
+      value = value + '='.repeat(4 - remainder);
+    }
+  }
+
+  // Hex normalization: strip 0x prefix, spaces, colons
+  // For hex_decode: always apply (the input IS hex)
+  // For hash ops: only apply when input_encoding is 'hex'
+  const shouldNormalizeHex =
+    HEX_DECODE_OPS.has(operation) ||
+    (HASH_OPS.has(operation) && inputEncoding === 'hex');
+
+  if (shouldNormalizeHex) {
+    value = value.replace(/^0[xX]/, '');
+    value = value.replace(/[\s:]/g, '');
+  }
+
+  return {
+    value,
+    wasTransformed: value !== input,
+    original: input,
+  };
+}
