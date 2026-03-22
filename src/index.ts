@@ -5,6 +5,7 @@ import { calculateTool } from './tools/calculate.js';
 import { convertTool } from './tools/convert.js';
 import { statisticsTool } from './tools/statistics.js';
 import { datetimeTool } from './tools/datetime.js';
+import { encodeTool } from './tools/encode.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
@@ -63,6 +64,26 @@ server.registerTool(
         birthDate?: string;
         asOf?: string;
         holidays?: string[];
+      },
+    ),
+);
+
+server.registerTool(
+  encodeTool.name,
+  {
+    description: encodeTool.description,
+    inputSchema: encodeTool.inputSchema,
+  },
+  async (args) =>
+    encodeTool.handler(
+      args as {
+        operation: string;
+        input: string;
+        input_encoding?: string;
+        key?: string;
+        key_encoding?: string;
+        algorithm?: string;
+        output_encoding?: string;
       },
     ),
 );
