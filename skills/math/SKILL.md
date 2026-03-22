@@ -2,8 +2,8 @@
 name: math
 description: >
   Guidance for using Euclid's deterministic MCP math tools (calculate, convert,
-  statistics, datetime). Use when the user's request requires numerical computation,
-  unit conversion, statistical analysis, or date/time arithmetic instead of mental math.
+  statistics, datetime, encode). Use when the user's request requires numerical computation,
+  unit conversion, statistical analysis, date/time arithmetic, or encoding/hashing instead of mental math.
 ---
 
 # Euclid Math Tools
@@ -29,6 +29,7 @@ is a prediction — the tool is deterministic.
 | To convert between units of measurement   | `convert`    | "Convert 5 km to miles" → `convert(5, "km", "mile")`            |
 | A statistic computed on a dataset         | `statistics` | "Average of these scores" → `statistics("mean", [...])`         |
 | A date calculation or property            | `datetime`   | "Days between Jan 1 and Mar 15" → `datetime("difference", ...)` |
+| To encode, decode, hash, or inspect a JWT | `encode`     | "Base64-encode this" → `encode("base64_encode", ...)`          |
 | A conceptual explanation                  | None         | "Explain what a derivative is"                                  |
 | A rough estimate or guess                 | None         | "About how many people fit in a stadium"                        |
 | Symbolic algebra (no numeric answer)      | None         | "Simplify x^2 + 2x"                                             |
@@ -108,3 +109,19 @@ Operations: `difference`, `add`, `subtract`, `business_days`, `days_in_month`,
 `age`, `quarter`, `day_of_week`, `is_leap_year`.
 
 For details on each operation and date format, see [DATETIME.md](DATETIME.md).
+
+### encode
+
+Takes `operation` (enum), `input` (string), and operation-specific optional fields.
+
+```
+encode({ operation: "base64_encode", input: "hello world" })
+encode({ operation: "sha256", input: "hello world" })
+encode({ operation: "hmac", input: "data", key: "secret", algorithm: "sha256" })
+```
+
+Operations: `base64_encode`, `base64_decode`, `base64url_encode`, `base64url_decode`,
+`hex_encode`, `hex_decode`, `url_encode`, `url_decode`, `html_encode`, `html_decode`,
+`sha256`, `sha512`, `sha1`, `md5`, `hmac`, `jwt_decode`.
+
+For details on each operation, input/output encodings, and edge cases, see [ENCODE.md](ENCODE.md).
